@@ -14,6 +14,8 @@ load_dotenv()
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 GITHUB_OWNER = os.getenv("GITHUB_OWNER", "falken10vdl")
 GITHUB_REPO = os.getenv("GITHUB_REPO", "CAD_SketcherPR")
+SOURCE_REPO_OWNER = os.getenv("SOURCE_REPO_OWNER", "hlorus")
+SOURCE_REPO_NAME = os.getenv("SOURCE_REPO_NAME", "CAD_Sketcher")
 BUILD_BASE_DIR = Path(os.getenv("BUILD_BASE_DIR", "/home/falken10vdl/CAD_SketcherPRDevel/CAD_SketcherPR-build"))
 
 
@@ -84,6 +86,18 @@ def append_report(report_file: Path, lines):
             f.write(line + "\n")
 
 
+def format_pr_items(pr_items):
+    if not pr_items:
+        return "- None"
+    lines = []
+    for item in pr_items:
+        number = item.get("number")
+        title = item.get("title", "")
+        pr_url = f"https://github.com/{SOURCE_REPO_OWNER}/{SOURCE_REPO_NAME}/pull/{number}"
+        lines.append(f"- [#{number}]({pr_url}) {title}")
+    return "\n".join(lines)
+
+
 def main():
     if not GITHUB_TOKEN:
         raise RuntimeError("GITHUB_TOKEN is required")
@@ -93,6 +107,8 @@ def main():
     timestamp = state["timestamp"]
     branch = state["branch"]
     pushed_to_origin = state.get("pushed_to_origin", True)
+    merged_prs = state.get("merged_prs", [])
+    failed_prs = state.get("failed_prs", [])
     report_file = Path(state["report"])
 
     dist_dir = BUILD_BASE_DIR / "dist"
@@ -104,12 +120,23 @@ def main():
     tag_name = f"v{version}-{timestamp}"
     release_name = f"CAD_SketcherPR {version} {timestamp}"
 
+    merged_block = format_pr_items(merged_prs)
+    failed_block = format_pr_items(failed_prs)
+
     body = (
         "Automated CAD_SketcherPR build.\n\n"
         f"- Source branch: {branch}\n"
         f"- Source branch pushed: {'yes' if pushed_to_origin else 'no'}\n"
         f"- Version: {version}\n"
         f"- Timestamp: {timestamp}\n"
+        f"- Merged PRs: {len(merged_prs)}\n"
+        f"- Failed PR merges: {len(failed_prs)}\n"
+        "\n"
+        "## Merged PRs\n"
+        f"{merged_block}\n"
+        "\n"
+        "## Failed PR merges\n"
+        f"{failed_block}\n"
     )
 
     release_id = get_or_create_release(tag_name, release_name, body)
