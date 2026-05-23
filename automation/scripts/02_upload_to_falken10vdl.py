@@ -42,11 +42,6 @@ def get_or_create_release(tag_name, release_name, body):
     repo_api = f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}"
     existing = requests.get(f"{repo_api}/releases/tags/{tag_name}", headers=headers(), timeout=30)
 
-    if existing.status_code == 200:
-        return existing.json()["id"]
-    if existing.status_code not in (404,):
-        existing.raise_for_status()
-
     payload = {
         "tag_name": tag_name,
         "name": release_name,
@@ -54,6 +49,16 @@ def get_or_create_release(tag_name, release_name, body):
         "draft": False,
         "prerelease": True,
     }
+
+    if existing.status_code == 200:
+        release = existing.json()
+        release_id = release["id"]
+        update = requests.patch(f"{repo_api}/releases/{release_id}", headers=headers(), json=payload, timeout=30)
+        update.raise_for_status()
+        return release_id
+    if existing.status_code not in (404,):
+        existing.raise_for_status()
+
     created = requests.post(f"{repo_api}/releases", headers=headers(), json=payload, timeout=30)
     created.raise_for_status()
     return created.json()["id"]
