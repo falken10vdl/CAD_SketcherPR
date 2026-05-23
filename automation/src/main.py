@@ -12,6 +12,7 @@ PIPELINE = [
     "00_clone_merge_and_create_branch.py",
     "01_build_CAD_SketcherPR_addon.py",
     "02_upload_to_falken10vdl.py",
+    "03_cleanup_old_releases.py",
 ]
 
 
