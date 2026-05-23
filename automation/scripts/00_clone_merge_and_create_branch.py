@@ -83,10 +83,12 @@ def main():
     version = read_version_from_manifest(BASE_CLONE_DIR)
     timestamp = subprocess.check_output(["date", "+%y%m%d%H%M"], text=True).strip()
     branch_name = f"build-{version}-{timestamp}"
+    merge_order = "descending (highest -> lowest PR#)"
 
     run(["git", "checkout", "-B", branch_name, f"upstream/{SOURCE_BASE_BRANCH}"], cwd=BASE_CLONE_DIR)
+    source_commit_before_merge = read_output(["git", "rev-parse", "HEAD"], cwd=BASE_CLONE_DIR)
 
-    prs = fetch_open_prs()
+    prs = sorted(fetch_open_prs(), key=lambda pr: pr.get("number", 0), reverse=True)
     merged = []
     failed = []
 
@@ -120,6 +122,8 @@ def main():
         f.write(f"Version: {version}\n")
         f.write(f"Timestamp: {timestamp}\n")
         f.write(f"Branch: {branch_name}\n")
+        f.write(f"Source commit (before PR merging): {source_commit_before_merge}\n")
+        f.write(f"Merge order: {merge_order}\n")
         f.write(f"Commit: {commit_hash}\n")
         f.write(f"Source: https://github.com/{SOURCE_REPO_OWNER}/{SOURCE_REPO_NAME}\n")
         f.write(f"Fork: https://github.com/{FORK_OWNER}/{FORK_REPO}\n\n")
@@ -137,6 +141,9 @@ def main():
         "version": version,
         "timestamp": timestamp,
         "branch": branch_name,
+        "source_commit_before_merge": source_commit_before_merge,
+        "merge_order": merge_order,
+        "total_prs_processed": len(prs),
         "pushed_to_origin": pushed_to_origin,
         "report": str(report_file),
         "merged_prs": merged,

@@ -14,6 +14,8 @@ load_dotenv()
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 GITHUB_OWNER = os.getenv("GITHUB_OWNER", "falken10vdl")
 GITHUB_REPO = os.getenv("GITHUB_REPO", "CAD_SketcherPR")
+FORK_OWNER = os.getenv("FORK_OWNER", "falken10vdl")
+FORK_REPO = os.getenv("FORK_REPO", "CAD_Sketcher")
 SOURCE_REPO_OWNER = os.getenv("SOURCE_REPO_OWNER", "hlorus")
 SOURCE_REPO_NAME = os.getenv("SOURCE_REPO_NAME", "CAD_Sketcher")
 BUILD_BASE_DIR = Path(os.getenv("BUILD_BASE_DIR", "/home/falken10vdl/CAD_SketcherPRDevel/CAD_SketcherPR-build"))
@@ -98,6 +100,14 @@ def format_pr_items(pr_items):
     return "\n".join(lines)
 
 
+def source_commit_line(source_commit_before_merge):
+    if not source_commit_before_merge:
+        return "CAD_Sketcher source commit (before PR merging): unknown"
+    short = source_commit_before_merge[:7]
+    url = f"https://github.com/{SOURCE_REPO_OWNER}/{SOURCE_REPO_NAME}/commit/{source_commit_before_merge}"
+    return f"CAD_Sketcher source commit (before PR merging): [{short}]({url})"
+
+
 def main():
     if not GITHUB_TOKEN:
         raise RuntimeError("GITHUB_TOKEN is required")
@@ -106,6 +116,9 @@ def main():
     version = state["version"]
     timestamp = state["timestamp"]
     branch = state["branch"]
+    source_commit_before_merge = state.get("source_commit_before_merge", "")
+    merge_order = state.get("merge_order", "descending (highest -> lowest PR#)")
+    total_prs_processed = state.get("total_prs_processed", len(state.get("merged_prs", [])) + len(state.get("failed_prs", [])))
     pushed_to_origin = state.get("pushed_to_origin", True)
     merged_prs = state.get("merged_prs", [])
     failed_prs = state.get("failed_prs", [])
@@ -122,13 +135,25 @@ def main():
 
     merged_block = format_pr_items(merged_prs)
     failed_block = format_pr_items(failed_prs)
+    source_commit_info = source_commit_line(source_commit_before_merge)
+    branch_url = f"https://github.com/{FORK_OWNER}/{FORK_REPO}/tree/{branch}"
 
     body = (
-        "Automated CAD_SketcherPR build.\n\n"
+        f"{source_commit_info}\n"
+        f"Merge order: {merge_order}\n"
+        f"Branch used to create this release: [{branch}]({branch_url})\n"
+        "\n"
+        "This is an automated build of CAD_SketcherPR with the latest pull requests merged from the CAD_Sketcher repository.\n"
+        "\n"
+        "## ⬇️ Merge Order: Descending\n"
+        "\n"
+        "PRs were merged in descending order, so the highest PR# was attempted first.\n"
+        "\n"
         f"- Source branch: {branch}\n"
         f"- Source branch pushed: {'yes' if pushed_to_origin else 'no'}\n"
         f"- Version: {version}\n"
         f"- Timestamp: {timestamp}\n"
+        f"- Total PRs Processed: {total_prs_processed}\n"
         f"- Merged PRs: {len(merged_prs)}\n"
         f"- Failed PR merges: {len(failed_prs)}\n"
         "\n"
