@@ -137,6 +137,10 @@ def main():
     failed_block = format_pr_items(failed_prs)
     source_commit_info = source_commit_line(source_commit_before_merge)
     branch_url = f"https://github.com/{FORK_OWNER}/{FORK_REPO}/tree/{branch}"
+    merged_count = len(merged_prs)
+    failed_count = len(failed_prs)
+    skipped_count = max(total_prs_processed - merged_count - failed_count, 0)
+    success_rate = (merged_count / total_prs_processed * 100.0) if total_prs_processed else 0.0
 
     body = (
         f"{source_commit_info}\n"
@@ -153,14 +157,19 @@ def main():
         f"- Source branch pushed: {'yes' if pushed_to_origin else 'no'}\n"
         f"- Version: {version}\n"
         f"- Timestamp: {timestamp}\n"
-        f"- Total PRs Processed: {total_prs_processed}\n"
-        f"- Merged PRs: {len(merged_prs)}\n"
-        f"- Failed PR merges: {len(failed_prs)}\n"
         "\n"
-        "## Merged PRs\n"
+        "## Build Statistics\n"
+        "\n"
+        f"- Total PRs Processed: {total_prs_processed}\n"
+        f"- Successfully Merged: {merged_count}\n"
+        f"- Skipped/Not merged: {skipped_count}\n"
+        f"- Failed PRs: {failed_count}\n"
+        f"- Success Rate: {success_rate:.1f}%\n"
+        "\n"
+        f"## Successfully Merged PRs ({merged_count})\n"
         f"{merged_block}\n"
         "\n"
-        "## Failed PR merges\n"
+        f"## Failed PRs ({failed_count})\n"
         f"{failed_block}\n"
     )
 
