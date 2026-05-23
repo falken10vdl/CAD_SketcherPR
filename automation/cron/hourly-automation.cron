@@ -1,0 +1,3 @@
+# Hourly CAD_SketcherPR automation trigger
+PATH=/home/falken10vdl/.local/bin:/home/falken10vdl/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin
+5 * * * * cd /home/falken10vdl/CAD_SketcherPRDevel/CAD_SketcherPR/automation/src && /usr/bin/python3 check_and_build.py >> ../logs/cron_hourly_$(date +\%Y\%m\%d_\%H\%M\%S).log 2>&1

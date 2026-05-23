@@ -1,0 +1,4 @@
+# Weekly CAD_SketcherPR automation
+# Runs Sunday at 02:00
+PATH=/home/falken10vdl/.local/bin:/home/falken10vdl/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin
+0 2 * * 0 cd /home/falken10vdl/CAD_SketcherPRDevel/CAD_SketcherPR/automation/src && /usr/bin/python3 main.py >> ../logs/cron_weekly_$(date +\%Y\%m\%d_\%H\%M\%S).log 2>&1

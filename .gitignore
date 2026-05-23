@@ -1,0 +1,6 @@
+automation/.env
+automation/.venv/
+automation/logs/*.log
+automation/logs/pr_state.json
+*.pyc
+__pycache__/
