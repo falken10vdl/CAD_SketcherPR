@@ -4,10 +4,13 @@
 import glob
 import json
 import os
+import subprocess
 from pathlib import Path
 
 import requests
 from dotenv import load_dotenv
+
+from update_index_json import update_index_json
 
 load_dotenv()
 
@@ -91,6 +94,39 @@ def append_report(report_file: Path, lines):
         f.write("\n")
         for line in lines:
             f.write(line + "\n")
+
+
+def update_and_publish_index(release_tag: str, artifact: Path):
+    index_path = Path(__file__).resolve().parents[2] / "index.json"
+    if not update_index_json(index_path, release_tag, [(artifact, artifact.name)]):
+        print(f"⚠️ Could not update {index_path}")
+        return
+
+    print(f"Updated {index_path}")
+
+    repo_dir = index_path.parent
+    relative_index = index_path.relative_to(repo_dir)
+
+    try:
+        subprocess.run(["git", "add", str(relative_index)], cwd=repo_dir, check=True)
+        diff = subprocess.run(
+            ["git", "diff", "--cached", "--quiet", "--", str(relative_index)],
+            cwd=repo_dir,
+            check=False,
+        )
+        if diff.returncode == 0:
+            print("index.json is already up to date; skipping commit.")
+            return
+
+        subprocess.run(
+            ["git", "commit", "-m", f"Update index.json for release {release_tag}"],
+            cwd=repo_dir,
+            check=True,
+        )
+        subprocess.run(["git", "push", "origin", "HEAD:main"], cwd=repo_dir, check=True)
+        print("Pushed index.json update to main.")
+    except Exception as exc:
+        print(f"⚠️ Could not commit/push index.json: {exc}")
 
 
 def format_pr_items(pr_items):
@@ -187,6 +223,8 @@ def main():
             f"Download URL: {download_url}",
         ],
     )
+
+    update_and_publish_index(tag_name, artifact)
 
     print(f"Release tag: {tag_name}")
     print(f"Uploaded: {artifact}")

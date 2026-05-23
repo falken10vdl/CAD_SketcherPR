@@ -1,0 +1,39 @@
+{
+  "version": "v1",
+  "blocklist": [],
+  "data": [
+    {
+      "schema_version": "1.0.0",
+      "id": "CAD_SketcherPR",
+      "name": "CAD Sketcher PR",
+      "tagline": "Automatic CAD Sketcher builds with merged pull requests.",
+      "version": "0.27.5-2605231112",
+      "type": "add-on",
+      "maintainer": "hlorus <dave19924@gmail.com>",
+      "license": [
+        "SPDX:GPL-3.0-or-later"
+      ],
+      "blender_version_min": "4.0.0",
+      "website": "https://github.com/falken10vdl/CAD_SketcherPR",
+      "permissions": {
+        "files": "Load and save CAD Sketcher projects from disk",
+        "network": "Used to check for and download updates"
+      },
+      "tags": [
+        "3D View",
+        "Modeling",
+        "Mesh",
+        "Object"
+      ],
+      "platforms": [
+        "linux-x64"
+      ],
+      "python_versions": [
+        "3.11"
+      ],
+      "archive_url": "https://github.com/falken10vdl/CAD_SketcherPR/releases/download/v0.27.5-2605231112/CAD_SketcherPR_0.27.5-2605231112.zip",
+      "archive_size": 59631868,
+      "archive_hash": "sha256:a06787cc46a5bdbc0ed7cd123915b231d9706beb8effd7bf824df23efd095d7d"
+    }
+  ]
+}

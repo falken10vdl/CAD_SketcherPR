@@ -6,7 +6,7 @@ Pipeline:
 1. Sync local automation repo (`check_cad_sketcherpr_in_git.py`)
 2. Clone/update fork and merge open upstream PRs into a timestamped branch (`00_clone_merge_and_create_branch.py`)
 3. Build a distributable addon zip (`01_build_CAD_SketcherPR_addon.py`)
-4. Upload release asset to GitHub Releases (`02_upload_to_falken10vdl.py`)
+4. Upload release asset to GitHub Releases and refresh `index.json` (`02_upload_to_falken10vdl.py`)
 
 ## Repository defaults
 
@@ -56,6 +56,8 @@ python3 main.py
   - `https://github.com/<GITHUB_OWNER>/<GITHUB_REPO>/releases/tag/v<version>-<yymmddhhmm>`
 - Report:
   - `/home/falken10vdl/CAD_SketcherPRDevel/README-CAD_SketcherPR_<version>-<yymmddhhmm>.txt`
+- Blender extension index:
+  - `https://raw.githubusercontent.com/falken10vdl/CAD_SketcherPR/main/index.json`
 
 ## Cron
 
@@ -80,4 +82,6 @@ crontab -e
 - `01_build_CAD_SketcherPR_addon.py` updates `blender_manifest.toml` for PR build branding:
   - `id = "CAD_SketcherPR"`
   - `name = "CAD Sketcher PR"`
+- `02_upload_to_falken10vdl.py` updates the repository root `index.json` so
+  Blender can discover new releases from the remote repository flow.
 - If your release repository does not exist yet, create `falken10vdl/CAD_SketcherPR` first.
