@@ -94,7 +94,8 @@ def main():
     if (zip_base.with_suffix(".zip")).exists():
         (zip_base.with_suffix(".zip")).unlink()
 
-    shutil.make_archive(str(zip_base), "zip", root_dir=package_dir)
+    # Create archive with CAD_SketcherPR folder at root (required by Blender extension format)
+    shutil.make_archive(str(zip_base), "zip", root_dir=BUILD_BASE_DIR, base_dir="CAD_SketcherPR")
     zip_file = zip_base.with_suffix(".zip")
 
     append_report(
