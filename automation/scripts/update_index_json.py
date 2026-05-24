@@ -20,7 +20,7 @@ DEFAULT_ENTRY = {
     "type": "add-on",
     "maintainer": "falken10vdl <falken10vdl@gmail.com>",
     "license": ["SPDX:GPL-3.0-or-later"],
-    "blender_version_min": "5.1.0",
+    "blender_version_min": "4.0.0",
     "website": "https://github.com/falken10vdl/CAD_SketcherPR",
     "permissions": {
         "files": "Load and save CAD Sketcher projects from disk",
@@ -29,7 +29,7 @@ DEFAULT_ENTRY = {
     },
     "tags": ["3D View", "Development", "Modeling", "Mesh", "Object", "User Interface"],
     "platforms": ["linux-x64", "macos-x64", "macos-arm64", "windows-x64"],
-    "python_versions": ["3.13"],
+    "python_versions": ["3.11", "3.12", "3.13"],
     "archive_url": "",
     "archive_size": 0,
     "archive_hash": "",
