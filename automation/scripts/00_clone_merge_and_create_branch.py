@@ -31,6 +31,17 @@ def read_output(cmd, cwd=None):
     return subprocess.check_output(cmd, cwd=cwd, text=True).strip()
 
 
+def merge_in_progress(repo_dir: Path) -> bool:
+    result = subprocess.run(
+        ["git", "rev-parse", "-q", "--verify", "MERGE_HEAD"],
+        cwd=repo_dir,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return result.returncode == 0
+
+
 def read_version_from_manifest(repo_dir: Path) -> str:
     manifest = repo_dir / "blender_manifest.toml"
     if not manifest.exists():
@@ -97,11 +108,26 @@ def main():
         sha = pr["head"]["sha"]
         ref_name = f"pr-{number}"
         try:
+            # Remove stale local ref to avoid non-fast-forward fetch failures.
+            subprocess.run(
+                ["git", "branch", "-D", ref_name],
+                cwd=BASE_CLONE_DIR,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
             run(["git", "fetch", "upstream", f"pull/{number}/head:{ref_name}"], cwd=BASE_CLONE_DIR)
             run(["git", "merge", "--no-ff", "--no-edit", ref_name], cwd=BASE_CLONE_DIR)
             merged.append({"number": number, "title": pr.get("title", ""), "sha": sha})
         except subprocess.CalledProcessError:
-            run(["git", "merge", "--abort"], cwd=BASE_CLONE_DIR)
+            if merge_in_progress(BASE_CLONE_DIR):
+                subprocess.run(
+                    ["git", "merge", "--abort"],
+                    cwd=BASE_CLONE_DIR,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
             failed.append({"number": number, "title": pr.get("title", ""), "sha": sha})
 
     pushed_to_origin = True
