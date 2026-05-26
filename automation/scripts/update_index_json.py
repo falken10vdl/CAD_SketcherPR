@@ -112,7 +112,7 @@ def update_index_json(index_path, release_tag, addon_files):
             {
                 "version": version_value,
                 "platforms": [asset["platform"]],
-                "python_versions": [asset["python_version"]],
+                "python_versions": ["3.11", "3.12", "3.13"],
                 "archive_url": (
                     f"https://github.com/{GITHUB_OWNER}/{GITHUB_REPO}/releases/download/"
                     f"{release_tag}/{asset['filename']}"
