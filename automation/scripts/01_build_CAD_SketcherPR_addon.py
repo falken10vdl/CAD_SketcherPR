@@ -29,10 +29,12 @@ def run(cmd, cwd=None):
     subprocess.run(cmd, cwd=cwd, check=True)
 
 
-def update_manifest_for_pr_build(manifest_path: Path):
+def update_manifest_for_pr_build(manifest_path: Path, package_version: str):
     text = manifest_path.read_text(encoding="utf-8")
     text = re.sub(r'^id\s*=\s*"[^"]+"', 'id = "CAD_SketcherPR"', text, flags=re.M)
     text = re.sub(r'^name\s*=\s*"[^"]+"', 'name = "CAD Sketcher PR"', text, flags=re.M)
+    # Keep manifest version aligned with index/release version to satisfy Blender installer checks.
+    text = re.sub(r'^version\s*=\s*"[^"]+"', f'version = "{package_version}"', text, flags=re.M)
     text = re.sub(
         r'^maintainer\s*=\s*"[^"]+"',
         'maintainer = "falken10vdl <noreply@users.noreply.github.com>"',
@@ -72,6 +74,7 @@ def main():
     branch = state["branch"]
     version = state["version"]
     timestamp = state["timestamp"]
+    package_version = f"{version}-{timestamp}"
     report_file = Path(state["report"])
 
     run(["git", "checkout", branch], cwd=BASE_CLONE_DIR)
@@ -86,10 +89,10 @@ def main():
     if not manifest.exists():
         raise RuntimeError("blender_manifest.toml not found in source")
 
-    update_manifest_for_pr_build(manifest)
+    update_manifest_for_pr_build(manifest, package_version)
 
     dist_dir.mkdir(parents=True, exist_ok=True)
-    zip_base = dist_dir / f"CAD_SketcherPR_{version}-{timestamp}"
+    zip_base = dist_dir / f"CAD_SketcherPR_{package_version}"
 
     if (zip_base.with_suffix(".zip")).exists():
         (zip_base.with_suffix(".zip")).unlink()
