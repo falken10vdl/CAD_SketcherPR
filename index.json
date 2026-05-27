@@ -7,7 +7,7 @@
       "id": "CAD_SketcherPR",
       "name": "CAD Sketcher PR",
       "tagline": "Automatic CAD Sketcher builds with merged pull requests.",
-      "version": "0.27.5-2605270915",
+      "version": "0.27.5-2605271815",
       "type": "add-on",
       "maintainer": "falken10vdl <falken10vdl@gmail.com>",
       "license": [
@@ -36,9 +36,9 @@
         "3.12",
         "3.13"
       ],
-      "archive_url": "https://github.com/falken10vdl/CAD_SketcherPR/releases/download/v0.27.5-2605270915/CAD_SketcherPR_0.27.5-2605270915.zip",
-      "archive_size": 59666491,
-      "archive_hash": "sha256:14a0fbe8eddb88fd83f818f40fb137ef165d7782751212e8cebbd928ff8e3c53"
+      "archive_url": "https://github.com/falken10vdl/CAD_SketcherPR/releases/download/v0.27.5-2605271815/CAD_SketcherPR_0.27.5-2605271815.zip",
+      "archive_size": 59666520,
+      "archive_hash": "sha256:830d7941f3c1b204c003d2c2dda0f75ed35752204d837398a7077c2becb23f5f"
     }
   ]
 }
