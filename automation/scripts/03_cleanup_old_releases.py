@@ -3,6 +3,7 @@
 
 import os
 from pathlib import Path
+from urllib.parse import quote
 
 import requests
 from dotenv import load_dotenv
@@ -58,6 +59,19 @@ def delete_release(release_id):
         timeout=30
     )
     resp.raise_for_status()
+
+
+def delete_tag(tag_name):
+    """Delete a git tag ref by tag name."""
+    repo_api = f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}"
+    encoded_tag = quote(tag_name, safe="")
+    resp = requests.delete(
+        f"{repo_api}/git/refs/tags/{encoded_tag}",
+        headers=headers(),
+        timeout=30,
+    )
+    if resp.status_code != 404:
+        resp.raise_for_status()
 
 
 def cleanup_old_logs():
@@ -143,6 +157,8 @@ def main():
             release_id = release["id"]
             try:
                 delete_release(release_id)
+                if tag != "unknown":
+                    delete_tag(tag)
                 print(f"  Deleted: {tag}")
             except Exception as e:
                 print(f"  Failed to delete {tag}: {e}")
