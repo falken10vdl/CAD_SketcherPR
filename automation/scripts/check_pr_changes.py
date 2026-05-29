@@ -60,6 +60,8 @@ def fetch_open_prs():
         if not prs:
             break
 
+        prs = [pr for pr in prs if not pr.get("draft", False)]
+
         if USERS:
             prs = [pr for pr in prs if pr.get("user", {}).get("login") in USERS]
 

@@ -63,12 +63,14 @@ def fetch_open_prs():
         r = requests.get(url, headers=auth_headers, params=params, timeout=30)
         if r.status_code != 401:
             r.raise_for_status()
-            return r.json()[:MAX_PRS_TO_MERGE]
+            prs = [pr for pr in r.json() if not pr.get("draft", False)]
+            return prs[:MAX_PRS_TO_MERGE]
         print("Warning: GITHUB_TOKEN unauthorized for pulls API; retrying without auth")
 
     r = requests.get(url, headers=base_headers, params=params, timeout=30)
     r.raise_for_status()
-    return r.json()[:MAX_PRS_TO_MERGE]
+    prs = [pr for pr in r.json() if not pr.get("draft", False)]
+    return prs[:MAX_PRS_TO_MERGE]
 
 
 def ensure_repo():
