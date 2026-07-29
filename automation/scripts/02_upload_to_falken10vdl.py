@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Upload CAD_SketcherPR build artifact to GitHub Releases."""
 
-import glob
 import json
 import os
 import subprocess
@@ -166,11 +165,17 @@ def main():
     report_file = Path(state["report"])
 
     dist_dir = BUILD_BASE_DIR / "dist"
-    artifacts = sorted(glob.glob(str(dist_dir / "*.zip")))
-    if not artifacts:
-        raise RuntimeError(f"No ZIP artifacts found in {dist_dir}")
+    package_version = f"{version}-{timestamp}"
+    expected_artifact = dist_dir / f"CAD_SketcherPR_{package_version}.zip"
+    if not expected_artifact.exists():
+        available = sorted(path.name for path in dist_dir.glob("*.zip"))
+        available_display = ", ".join(available) if available else "none"
+        raise RuntimeError(
+            f"Expected build artifact not found: {expected_artifact.name}. "
+            f"Available ZIPs: {available_display}"
+        )
 
-    artifact = Path(artifacts[-1])
+    artifact = expected_artifact
     tag_name = f"v{version}-{timestamp}"
     release_name = f"CAD_SketcherPR {version} {timestamp}"
 

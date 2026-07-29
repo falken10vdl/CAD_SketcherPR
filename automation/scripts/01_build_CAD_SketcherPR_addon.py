@@ -94,8 +94,9 @@ def main():
     dist_dir.mkdir(parents=True, exist_ok=True)
     zip_base = dist_dir / f"CAD_SketcherPR_{package_version}"
 
-    if (zip_base.with_suffix(".zip")).exists():
-        (zip_base.with_suffix(".zip")).unlink()
+    # Remove stale CAD_SketcherPR archives so downstream upload cannot pick an old build.
+    for stale_zip in dist_dir.glob("CAD_SketcherPR_*.zip"):
+        stale_zip.unlink()
 
     # Create archive with CAD_SketcherPR folder at root (required by Blender extension format)
     shutil.make_archive(str(zip_base), "zip", root_dir=BUILD_BASE_DIR, base_dir="CAD_SketcherPR")
