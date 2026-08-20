@@ -11,6 +11,10 @@ from pathlib import Path
 GITHUB_OWNER = os.getenv("GITHUB_OWNER", "falken10vdl")
 GITHUB_REPO = os.getenv("GITHUB_REPO", "CAD_SketcherPR")
 
+# Every platform the universal (all-wheels) build supports. A single archive
+# advertised for all of these lets Blender offer install/auto-update on each.
+ALL_PLATFORMS = ["linux-x64", "macos-x64", "macos-arm64", "windows-x64"]
+
 DEFAULT_ENTRY = {
     "schema_version": "1.0.0",
     "id": "CAD_SketcherPR",
@@ -43,7 +47,14 @@ def _load_index(index_path: Path):
     return {"version": "v1", "blocklist": [], "data": [copy.deepcopy(DEFAULT_ENTRY)]}
 
 
-def _platform_from_name(filename: str) -> str:
+def _platform_from_name(filename: str):
+    """Infer the target platform from a per-platform asset name.
+
+    Returns ``None`` for an untagged archive: the addon build bundles the wheels
+    for every platform, so a name without a platform token is a universal build
+    that must be advertised for all platforms (see ALL_PLATFORMS), not pinned to
+    linux-x64 -- which is what previously hid the build from Windows/macOS.
+    """
     lowered = filename.lower()
     if "linux-x64" in lowered:
         return "linux-x64"
@@ -53,7 +64,7 @@ def _platform_from_name(filename: str) -> str:
         return "macos-x64"
     if "windows-x64" in lowered or "win" in lowered:
         return "windows-x64"
-    return "linux-x64"
+    return None
 
 
 def _python_version_from_name(filename: str) -> str:
@@ -111,7 +122,9 @@ def update_index_json(index_path, release_tag, addon_files):
         entry.update(
             {
                 "version": version_value,
-                "platforms": [asset["platform"]],
+                "platforms": (
+                    [asset["platform"]] if asset["platform"] else list(ALL_PLATFORMS)
+                ),
                 "python_versions": ["3.11", "3.12", "3.13"],
                 "archive_url": (
                     f"https://github.com/{GITHUB_OWNER}/{GITHUB_REPO}/releases/download/"
