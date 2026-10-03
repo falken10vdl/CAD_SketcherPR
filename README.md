@@ -20,8 +20,8 @@ check for new releases automatically.
 4. Search for CAD_SketcherPR and install it.
 5. Disable the stock CAD Sketcher add-on before enabling CAD_SketcherPR.
 
-The current automatic feed publishes the Linux x64 build. If you need a
-different platform, install the release ZIP manually.
+The automatic feed serves the universal build (Linux, macOS Intel/ARM and
+Windows), so Blender offers install and auto-updates on every platform.
 
 ## Pipeline
 
